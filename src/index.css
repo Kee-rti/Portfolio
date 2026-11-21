@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light Mode: Warm ivory & porcelain with dusty rose and deep plum */
+  --color-surface: #FAF7F5;
+  --color-surface-elevated: #FFFFFF;
+  --color-surface-muted: #F3ECE8;
+  --color-border: #E8DCD5;
+  --color-border-subtle: #F0E6E1;
+  --color-ink: #2B1E26;
+  --color-ink-muted: #735D6A;
+  --color-ink-faint: #A6929D;
+  
+  --color-rose: #C27387;
+  --color-rose-dark: #9E5266;
+  --color-rose-subtle: #FAEEF1;
+  --color-rose-border: #EBC5CE;
+
+  --color-lilac: #A882B5;
+  --color-lilac-subtle: #F5EEF8;
+
+  --color-plum: #5A2740;
+  --color-plum-deep: #3A1426;
+  --color-plum-subtle: #ECE1E6;
+
+  --color-accent-green: #2E7D5A;
+  --color-accent-green-subtle: #E8F5EE;
+}
+
+.dark {
+  /* Dark Mode: Deep velvet obsidian-plum with soft muted rose and porcelain highlights */
+  --color-surface: #140E13;
+  --color-surface-elevated: #1D151C;
+  --color-surface-muted: #241A22;
+  --color-border: #352632;
+  --color-border-subtle: #291D27;
+  --color-ink: #F7EBF1;
+  --color-ink-muted: #BBA4AF;
+  --color-ink-faint: #786470;
+  
+  --color-rose: #D9889D;
+  --color-rose-dark: #BF6D82;
+  --color-rose-subtle: #2E1B25;
+  --color-rose-border: #4D2D3D;
+
+  --color-lilac: #BA96C7;
+  --color-lilac-subtle: #2A1D2E;
+
+  --color-plum: #E2A6C0;
+  --color-plum-deep: #F5E8EF;
+  --color-plum-subtle: #2B1B24;
+
+  --color-accent-green: #54B889;
+  --color-accent-green-subtle: #152E22;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom delicate scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-rose);
+}
