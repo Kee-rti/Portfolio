@@ -1,16 +1,16 @@
 # Kirti — Engineering Portfolio & Personal Studio
 
-A minimal, editorial, and tactile engineering portfolio designed from scratch with React, TypeScript, and Tailwind CSS. Built to showcase applied AI systems, agentic tool orchestration, grounded RAG pipelines, and edge machine learning models.
+A minimal, editorial engineering portfolio built with React, TypeScript, and Tailwind CSS. Designed to showcase projects in agent workflows, document retrieval, and client-side machine learning.
 
 ---
 
 ## ✨ Features & Architecture
 
-- **Editorial Studio Aesthetic**: Built with Fraunces headings, Inter body text, and JetBrains Mono for telemetry, with a warm ivory/porcelain palette, muted rose, and deep plum accents.
-- **Coordinated Themes**: Fully responsive light and dark themes with persistent `localStorage` support.
-- **In-Depth Case Studies**: Each flagship project (`MeetMate`, `ResumeProcessor`, `Prod`, `SafetyApp`) includes problem definitions, ASCII architecture diagrams, engineering decisions & trade-offs, and verified validation metrics.
-- **In-Browser Interactive ML Lab**: A client-side demonstration evaluating the actual edge decision model from **Prod** with live slider inputs and sub-millisecond inference.
-- **Zero Backend / 100% Static**: Builds into a pure `dist/` directory ready for 1-click deployment on Vercel or Cloudflare Pages with zero server cost and sub-200ms global TTFB.
+- **Soft Tech Studio Aesthetic**: Built with Fraunces headings, Inter body text, and JetBrains Mono for telemetry, with a warm ivory/porcelain palette, muted rose, and deep plum accents.
+- **Coordinated Themes**: Fully responsive light and dark themes with persistent `localStorage` preference support.
+- **In-Depth Case Studies**: Each featured project (`MeetMate`, `ResumeProcessor`, `Prod`, `SafetyApp`) includes problem statements, ASCII architecture diagrams, engineering decisions & trade-offs, and documented constraints.
+- **In-Browser Interactive ML Lab**: A client-side demonstration executing the compiled XGBoost decision tree logic from **Prod** directly in the browser with live simulated inputs.
+- **Zero Backend / 100% Static**: Builds into a pure `dist/` directory ready for deployment on static hosting platforms (Vercel, Cloudflare Pages, or GitHub Pages) without backend dependencies.
 
 ---
 
@@ -42,25 +42,27 @@ npm run preview
 
 ## 📝 Updating Content & Maintainability
 
-All content is modularized under `src/data/` for rapid updates in minutes:
+All content is decoupled from components and stored under `src/data/`:
 
-- **Personal Information & Links**: Update `src/data/site.ts` (bio, social links, headline, status pill).
+- **Personal Information & Links**: Update `src/data/site.ts` (bio, social links, headline, status pill, navigation).
+- **Curiosity & Focus Areas**: Update `src/data/exploring.ts` (editorial focus areas and ongoing inquiry notes).
 - **Adding / Modifying a Project**:
   1. Add or edit a project file in `src/data/projects/` (e.g., `meetmate.ts`).
-  2. Export it from `src/data/projects/index.ts`. The UI cards, badges, and modal drawers update automatically without redesigning components.
+  2. Export it from `src/data/projects/index.ts`. The UI cards, badges, and case study modals update automatically without modifying component code.
 - **Work Experience**: Update `src/data/experience.ts`.
 - **Skills Matrix**: Update `src/data/skills.ts`.
-- **Replacing Your Résumé**: Replace `public/resume.pdf` with your latest PDF export.
+- **Replacing Your Résumé**: Replace `public/resume.pdf` with your latest PDF file.
+- **Profile Photo**: Replace `public/kirti.jpg` with an updated portrait.
 
 ---
 
 ## 🚀 Deployment to Vercel
 
-1. Push this repository to GitHub (e.g. `github.com/kee-rti/portfolio`).
+1. Push this repository to GitHub (e.g. `github.com/Kee-rti/Portfolio`).
 2. Log into [Vercel](https://vercel.com) and click **"New Project"**.
 3. Import your repository.
 4. Verify the default settings:
    - **Framework Preset**: Vite
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
-5. Click **Deploy**. Your portfolio will be live globally on Vercel's edge network.
+5. Click **Deploy**. Your portfolio will be live on Vercel's global edge network.

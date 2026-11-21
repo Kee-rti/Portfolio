@@ -18,28 +18,28 @@ export const prodProject: Project = {
   caseStudy: {
     problemStatement: 'Tracking productivity online is difficult because naive domain blocking treats productive research on sites like YouTube or StackOverflow as distraction. Uploading raw browsing history or keystrokes to a cloud server creates unacceptable privacy risks. Prod was built to test whether a machine learning classifier could run entirely client-side inside a browser extension using only anonymized interaction patterns.',
     workflowDiagram: `[User Interactions in Active Tab]
- (Active Duration, Scroll Distance, Keystrokes, Tab Switches)
+ (Active Duration, Scroll Percentage, Keystrokes)
        │
        ▼
 [Chrome Content Script]
        │  Collects kinetic counters (never records typed text or URLs)
        ▼
 [Extension Background Worker]
-       │
+       │  Passes [duration, scroll, keys, 0] to compiled predictor
        ▼
-[Feature Normalizer & Decision Engine]
-       │  Normalizes inputs against training distribution
-       ├── Computes classification score (Model Score)
-       └── Determines dominant contributing feature
+[Compiled XGBoost Predictor (predictXGB)]
+       │  Evaluates decision trees locally in RAM
+       ├── Computes focus probability
+       └── Applies 0.86 decision boundary threshold
        ▼
 [Local Chrome Storage Output]
-       │  (FOCUSED vs DISTRACTED + Explanation, entirely local in RAM)`,
+       │  (FOCUSED vs DISTRACTED, evaluated locally in RAM without network requests)`,
     architectureDescription: 'An offline-capable browser extension. Models were trained in Python using XGBoost and Logistic Regression baselines, with client-side decision logic and tree exports compiled to JavaScript for local evaluation in the browser without network requests.',
     keyComponents: [
       { name: 'Telemetry Collector', purpose: 'A content script that measures passive interaction signals (typing count, scroll distance, duration) without inspecting sensitive page contents or keystroke characters.' },
       { name: 'ML Training Pipeline (ml_lab)', purpose: 'Python scripts training XGBoost and Logistic Regression baselines on synthetic behavioural interaction data with stratified k-fold cross-validation.' },
       { name: 'Tree Compilation Pipeline', purpose: 'Script (compile_xgb_js.py) converting tree exports into nested JavaScript expressions for local extension runtime evaluation.' },
-      { name: 'Explanation Engine', purpose: 'Ranks feature weights and contributions to provide clear feedback (e.g. "Sustained Typing" or "High Tab Switching").' }
+      { name: 'Decision Threshold Layer', purpose: 'Applies an explicit 0.86 decision boundary to the compiled tree output to prioritize high precision in real-world browsing.' }
     ],
     engineeringDecisions: [
       {
@@ -57,11 +57,11 @@ export const prodProject: Project = {
         tradeOff: 'Tree ensemble logic requires more branching operations than a single linear dot product.'
       },
       {
-        title: 'Feature Contribution Explanations',
-        context: 'Giving users a binary label without context makes the tool feel opaque and untrustworthy.',
-        choice: 'Implemented a feature contribution resolver that isolates the dominant positive or negative signal.',
-        rationale: 'Users can understand why a session was marked as focused or distracted and adjust their habits accordingly.',
-        tradeOff: 'Requires heuristic boundaries, such as ignoring short sessions under 30 seconds from citing duration as positive.'
+        title: 'Calibrated Decision Threshold (0.86) vs. Default 0.5',
+        context: 'A default 0.5 decision threshold results in frequent false distraction alerts during brief reading pauses.',
+        choice: 'Conducted a precision-recall threshold sweep in ml_lab, selecting an 0.86 cutoff for classifying focused sessions.',
+        rationale: 'Prioritizes high precision so the extension avoids false distraction warnings during focused work.',
+        tradeOff: 'A conservative threshold requires stronger sustained signals before classifying sessions as focused.'
       }
     ],
     implementationDetails: [
@@ -71,14 +71,14 @@ export const prodProject: Project = {
       'Chrome local storage stores session history for popup charts without transmitting any data over the internet.'
     ],
     validationAndMetrics: [
-      { metric: 'Synthetic Test Accuracy', value: '98.57%', note: 'Evaluated on synthetic dataset in ml_lab (does not establish real-world generalization).', status: 'synthetic-baseline' },
-      { metric: 'Synthetic Test Precision', value: '98.56%', note: 'Minimizes false distraction alerts on focused sessions in synthetic splits.', status: 'synthetic-baseline' },
-      { metric: 'Synthetic Test Recall', value: '99.04%', note: 'Captures focused patterns in synthetic scenarios.', status: 'synthetic-baseline' },
-      { metric: 'Local Execution', value: 'Client-Side RAM', note: 'Runs in the browser background worker with no external network calls.', status: 'verified' }
+      { metric: 'Decision Threshold', value: '0.86', note: 'Calibrated cutoff boundary chosen via threshold sweep on synthetic training data.', status: 'verified' },
+      { metric: 'Inference Runtime', value: 'Client-Side RAM', note: 'Runs compiled decision trees directly in the browser worker with zero network requests.', status: 'verified' },
+      { metric: 'Dataset Source', value: 'Synthetic Corpus', note: 'Trained on simulated session data; does not establish real-world generalization.', status: 'synthetic-baseline' }
     ],
     limitationsAndFutureWork: [
-      'The reported 98.57% accuracy was evaluated on synthetic behavioural data; real-world browsing is far noisier and requires continuous user-level personalization.',
-      'Browser extensions cannot monitor external desktop apps (like code editors or terminal windows).',
+      'Evaluation was conducted on a synthetic dataset without strict out-of-sample holdout separation; performance figures have been removed until re-evaluated against an untouched test split.',
+      'Synthetic interaction data does not establish real-world generalization; real browsing behavior exhibits significantly higher noise and domain complexity.',
+      'Browser extensions cannot monitor external desktop applications (like code editors or terminal windows).',
       'Does not distinguish different types of reading (e.g. documentation vs social media articles).'
     ]
   }

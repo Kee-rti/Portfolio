@@ -48,6 +48,9 @@ export default {
       },
       borderRadius: {
         'pill': '100px',
+      },
+      spacing: {
+        '18': '4.5rem',
       }
     },
   },

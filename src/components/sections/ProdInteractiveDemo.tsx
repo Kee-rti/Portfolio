@@ -1,99 +1,58 @@
 import React, { useState, useMemo } from 'react';
 import { Badge } from '../common/Badge';
 import { SparkleDoodle, StarDoodle } from '../common/FloralAccents';
+import { predictXGB } from '../../utils/xgbPredictor';
 
 interface FeatureState {
-  duration: number;      // seconds: 10 - 600
-  scrollDepth: number;   // pixels: 0 - 6000
-  keyCount: number;      // count: 0 - 400
-  switchCount: number;   // tab switches: 0 - 20
+  duration: number;      // seconds: 10 - 1200
+  scrollDepth: number;   // percentage: 0 - 100% (matching content.js scroll percentage)
+  keyCount: number;      // count: 0 - 150
+  switchCount: number;   // tab switches: 0 - 20 (tracked separately in extension worker)
 }
 
 export const ProdInteractiveDemo: React.FC = () => {
   const [features, setFeatures] = useState<FeatureState>({
-    duration: 180,
-    scrollDepth: 1200,
-    keyCount: 140,
+    duration: 360,
+    scrollDepth: 25,
+    keyCount: 45,
     switchCount: 2,
   });
 
   const loadPreset = (preset: 'deep-work' | 'social-media' | 'coding') => {
     switch (preset) {
       case 'deep-work':
-        setFeatures({ duration: 420, scrollDepth: 1500, keyCount: 280, switchCount: 1 });
+        setFeatures({ duration: 600, scrollDepth: 15, keyCount: 75, switchCount: 1 });
         break;
       case 'social-media':
-        setFeatures({ duration: 90, scrollDepth: 4800, keyCount: 8, switchCount: 14 });
+        setFeatures({ duration: 60, scrollDepth: 85, keyCount: 4, switchCount: 12 });
         break;
       case 'coding':
-        setFeatures({ duration: 320, scrollDepth: 900, keyCount: 310, switchCount: 3 });
+        setFeatures({ duration: 320, scrollDepth: 35, keyCount: 50, switchCount: 3 });
         break;
     }
   };
 
-  // Inference logic directly implemented from prod/extension/lib/inference.js
+  // Inference using the actual compiled XGBoost predictor from prod/extension/lib/xgb_compiled.js
   const inferenceResult = useMemo(() => {
-    const { duration, scrollDepth, keyCount, switchCount } = features;
-
-    // Parameter bounds established during training
-    const minVals = [0, 0, 0, 0];
-    const maxVals = [300, 5000, 300, 15];
-    const weights = [1.85, -0.92, 3.40, -4.15];
-    const bias = -0.45;
-    const featureNames = ['Duration', 'Scroll Depth', 'Key Activity', 'Tab Switching'];
-
-    const rawVals = [duration, scrollDepth, keyCount, switchCount];
-    const normFeatures = rawVals.map((v, i) => {
-      const denom = maxVals[i] - minVals[i];
-      const clamped = Math.max(minVals[i], Math.min(v, maxVals[i]));
-      return (clamped - minVals[i]) / denom;
-    });
-
-    let z = bias;
-    const contributions: { name: string; value: number; raw: number; weight: number }[] = [];
-
-    for (let i = 0; i < 4; i++) {
-      const contrib = normFeatures[i] * weights[i];
-      z += contrib;
-      contributions.push({
-        name: featureNames[i],
-        value: contrib,
-        raw: rawVals[i],
-        weight: weights[i],
-      });
-    }
-
-    // Sigmoid function
-    const score = 1 / (1 + Math.exp(-z));
-    const isFocused = score >= 0.5;
-
-    // Reason resolution matching production logic
-    let reason = '';
-    if (isFocused) {
-      const sorted = [...contributions].sort((a, b) => b.value - a.value);
-      let best = sorted[0];
-      if (best.name === 'Duration' && duration < 30) {
-        best = sorted[1] && sorted[1].value > 0 ? sorted[1] : best;
-      }
-      reason = `Sustained ${best.name}`;
-    } else {
-      const minContrib = contributions.reduce((prev, curr) => (curr.value < prev.value ? curr : prev));
-      if (minContrib.name === 'Tab Switching' && switchCount >= 5) {
-        reason = 'Frequent Tab Switching';
-      } else if (minContrib.name === 'Key Activity' && keyCount < 20) {
-        reason = 'Low Typing Activity';
-      } else if (minContrib.name === 'Scroll Depth' && scrollDepth > 3000) {
-        reason = 'Rapid Feed Scrolling';
-      } else {
-        reason = `High ${minContrib.name} Drag`;
-      }
-    }
+    const { duration, scrollDepth, keyCount } = features;
+    
+    // In the active production extension worker (background.js), switchCount is tracked separately
+    // while the compiled tree predictor receives 0 as a placeholder for modelSwitchCount.
+    const modelSwitchCount = 0;
+    const modelFeatures = [duration, scrollDepth, keyCount, modelSwitchCount];
+    
+    // Evaluated against calibrated decision threshold (0.86) established during training
+    const threshold = 0.86;
+    const result = predictXGB(modelFeatures, threshold);
+    const probPercent = (result.prob * 100).toFixed(1);
+    const isFocused = result.label === 1;
 
     return {
-      score: Math.round(score * 100),
+      prob: result.prob,
+      probPercent,
       label: isFocused ? 'FOCUSED' : 'DISTRACTED',
-      reason,
-      contributions,
+      thresholdPercent: (threshold * 100).toFixed(0),
+      featuresPassed: modelFeatures,
     };
   }, [features]);
 
@@ -114,7 +73,7 @@ export const ProdInteractiveDemo: React.FC = () => {
               Test the Browser Inference Model
             </h2>
             <p className="text-ink-muted text-sm sm:text-base max-w-2xl font-sans">
-              Adjust the simulated browsing indicators below. This demo runs the actual JavaScript decision logic extracted from the <strong className="text-ink font-medium">Prod</strong> extension, calculating predictions locally in your browser.
+              Adjust the simulated browsing indicators below. This demo runs the compiled XGBoost decision tree logic extracted directly from the <strong className="text-ink font-medium">Prod</strong> extension, evaluating predictions client-side in your browser.
             </p>
           </div>
 
@@ -136,7 +95,7 @@ export const ProdInteractiveDemo: React.FC = () => {
               onClick={() => loadPreset('coding')}
               className="px-3 py-1 rounded-full text-xs font-mono border border-border bg-surface-elevated hover:border-rose text-ink transition-colors"
             >
-              ⋆ Coding
+              ⋆ Focused Session
             </button>
           </div>
         </div>
@@ -150,27 +109,52 @@ export const ProdInteractiveDemo: React.FC = () => {
               <span className="font-mono text-xs font-medium text-ink-muted uppercase tracking-wider">
                 Simulated Session Inputs
               </span>
-              <span className="font-mono text-[11px] text-ink-faint">Runs 100% Client-Side</span>
+              <span className="font-mono text-[11px] text-ink-faint">Compiled Decision Trees</span>
             </div>
 
             {/* Slider 1: Duration */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-mono">
                 <span className="text-ink">Active Session Duration</span>
-                <span className="text-rose font-medium">{features.duration}s ({Math.round(features.duration / 60 * 10) / 10}m)</span>
+                <span className="text-rose font-medium">
+                  {features.duration}s ({Math.round((features.duration / 60) * 10) / 10}m)
+                </span>
               </div>
               <input
                 type="range"
                 min="10"
-                max="600"
+                max="1200"
                 step="10"
                 value={features.duration}
                 onChange={(e) => setFeatures({ ...features, duration: Number(e.target.value) })}
                 className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
               />
+              <span className="text-[11px] font-mono text-ink-faint block">
+                Continuous engagement time on the active tab (seconds).
+              </span>
             </div>
 
-            {/* Slider 2: Key Activity */}
+            {/* Slider 2: Scroll Depth (Percentage: 0 - 100%) */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-mono">
+                <span className="text-ink">Max Scroll Depth</span>
+                <span className="text-rose font-medium">{features.scrollDepth}% of page</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={features.scrollDepth}
+                onChange={(e) => setFeatures({ ...features, scrollDepth: Number(e.target.value) })}
+                className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
+              />
+              <span className="text-[11px] font-mono text-ink-faint block">
+                Relative vertical scroll progress measured by the content script (0% to 100%).
+              </span>
+            </div>
+
+            {/* Slider 3: Keystrokes */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-mono">
                 <span className="text-ink">Keystroke Count</span>
@@ -179,19 +163,27 @@ export const ProdInteractiveDemo: React.FC = () => {
               <input
                 type="range"
                 min="0"
-                max="400"
-                step="5"
+                max="150"
+                step="1"
                 value={features.keyCount}
                 onChange={(e) => setFeatures({ ...features, keyCount: Number(e.target.value) })}
                 className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
               />
+              <span className="text-[11px] font-mono text-ink-faint block">
+                Passive keyboard activity tally (character text is never inspected or logged).
+              </span>
             </div>
 
-            {/* Slider 3: Tab Switching */}
-            <div className="space-y-1.5">
+            {/* Slider 4: Tab Switching (Tracked separately notice) */}
+            <div className="space-y-1.5 pt-1 border-t border-border-subtle">
               <div className="flex justify-between text-xs font-mono">
-                <span className="text-ink">Tab Switches</span>
-                <span className="text-rose font-medium">{features.switchCount} switches</span>
+                <span className="text-ink flex items-center gap-1.5">
+                  <span>Tab Switches</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface-muted text-ink-muted border border-border-subtle">
+                    Tracked Asynchronously
+                  </span>
+                </span>
+                <span className="text-ink-muted font-medium">{features.switchCount} switches</span>
               </div>
               <input
                 type="range"
@@ -202,35 +194,21 @@ export const ProdInteractiveDemo: React.FC = () => {
                 onChange={(e) => setFeatures({ ...features, switchCount: Number(e.target.value) })}
                 className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
               />
-            </div>
-
-            {/* Slider 4: Scroll Depth */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-mono">
-                <span className="text-ink">Scroll Distance</span>
-                <span className="text-rose font-medium">{features.scrollDepth} px</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="6000"
-                step="100"
-                value={features.scrollDepth}
-                onChange={(e) => setFeatures({ ...features, scrollDepth: Number(e.target.value) })}
-                className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
-              />
+              <span className="text-[11px] font-mono text-ink-faint block">
+                * Note: In the production extension, tab switching events are recorded separately in Chrome local storage; the active XGBoost decision tree path evaluates this input as 0.
+              </span>
             </div>
 
             <div className="pt-2 text-xs text-ink-muted font-sans border-t border-border-subtle flex items-center gap-2">
-              <StarDoodle size={12} className="text-rose" />
-              <span>Privacy notice: This demo only modifies local state. No personal browsing activity is measured or collected.</span>
+              <StarDoodle size={12} className="text-rose flex-shrink-0" />
+              <span>Privacy notice: This simulation runs entirely in client-side memory. No browsing activity is captured or transmitted.</span>
             </div>
           </div>
 
           {/* Results Display (5 cols) */}
           <div className="lg:col-span-5 bg-surface-elevated border border-border rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col justify-between space-y-6">
             
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="flex items-center justify-between border-b border-border-subtle pb-3">
                 <span className="font-mono text-xs font-medium text-ink-muted uppercase tracking-wider">
                   Model Output
@@ -248,10 +226,10 @@ export const ProdInteractiveDemo: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-xs font-mono uppercase tracking-wider font-semibold">
-                    Result
+                    Classification
                   </span>
                   <Badge variant={inferenceResult.label === 'FOCUSED' ? 'green' : 'rose'} size="sm">
-                    Model Score: {inferenceResult.score}%
+                    Score: {inferenceResult.probPercent}%
                   </Badge>
                 </div>
                 
@@ -259,40 +237,46 @@ export const ProdInteractiveDemo: React.FC = () => {
                   {inferenceResult.label}
                 </div>
                 
-                <div className="mt-2 text-xs font-mono flex items-center gap-1.5 pt-2 border-t border-current/15">
-                  <span className="opacity-80">Primary Factor:</span>
-                  <strong className="underline underline-offset-2">{inferenceResult.reason}</strong>
+                <div className="mt-2 text-xs font-mono flex items-center justify-between pt-2 border-t border-current/15">
+                  <span className="opacity-80">Decision Threshold:</span>
+                  <strong className="underline underline-offset-2">{inferenceResult.thresholdPercent}%</strong>
                 </div>
               </div>
 
-              {/* Feature Contribution Breakdown */}
-              <div className="space-y-2 pt-2">
-                <span className="font-mono text-xs text-ink-muted block">
-                  Relative Feature Contributions
+              {/* Technical Telemetry Inspector */}
+              <div className="space-y-3 pt-1">
+                <span className="font-mono text-xs text-ink-muted uppercase tracking-wider block">
+                  Model Telemetry
                 </span>
-                {inferenceResult.contributions.map((item, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex justify-between text-[11px] font-mono">
-                      <span className="text-ink">{item.name}</span>
-                      <span className={item.value >= 0 ? 'text-accent-green font-medium' : 'text-rose font-medium'}>
-                        {item.value >= 0 ? `+${item.value.toFixed(2)}` : item.value.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="h-1.5 w-full bg-surface-muted rounded-full overflow-hidden flex">
-                      <div
-                        className={`h-full rounded-full transition-all duration-150 ${
-                          item.value >= 0 ? 'bg-accent-green' : 'bg-rose'
-                        }`}
-                        style={{ width: `${Math.min(100, Math.abs(item.value) * 25)}%` }}
-                      />
-                    </div>
+
+                <div className="p-3.5 rounded-2xl bg-surface-muted/60 border border-border-subtle space-y-2 text-xs font-mono">
+                  <div className="flex justify-between items-center text-ink-muted">
+                    <span>Engine:</span>
+                    <span className="text-ink">Compiled XGBoost Trees</span>
                   </div>
-                ))}
+                  <div className="flex justify-between items-center text-ink-muted">
+                    <span>Function:</span>
+                    <span className="text-ink font-semibold">predictXGB(features, 0.86)</span>
+                  </div>
+                  <div className="flex justify-between items-center text-ink-muted">
+                    <span>Output Probability:</span>
+                    <span className="text-plum dark:text-rose font-medium">{inferenceResult.prob.toFixed(4)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-ink-muted">
+                    <span>Threshold Comparison:</span>
+                    <span className={inferenceResult.label === 'FOCUSED' ? 'text-accent-green font-medium' : 'text-rose font-medium'}>
+                      {inferenceResult.prob >= 0.86 ? '≥ 0.86 (Focused)' : '< 0.86 (Distracted)'}
+                    </span>
+                  </div>
+                  <div className="pt-2 border-t border-border-subtle text-[11px] text-ink-faint">
+                    Passed Vector: [{inferenceResult.featuresPassed.join(', ')}]
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="p-3 rounded-2xl bg-surface-muted/50 border border-border-subtle text-[11px] font-mono text-ink-muted">
-              Classification logic derived from the project's compiled decision tree calculations.
+            <div className="p-3 rounded-2xl bg-surface-muted/50 border border-border-subtle text-[11px] font-mono text-ink-muted leading-relaxed">
+              * Note: The active production extension uses binary decision boundaries compiled from XGBoost trees; it does not compute per-feature attribution bars during inference.
             </div>
 
           </div>
