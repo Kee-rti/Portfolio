@@ -56,13 +56,3 @@ All content is decoupled from components and stored under `src/data/`:
 
 ---
 
-## 🚀 Deployment to Vercel
-
-1. Push this repository to GitHub (e.g. `github.com/Kee-rti/Portfolio`).
-2. Log into [Vercel](https://vercel.com) and click **"New Project"**.
-3. Import your repository.
-4. Verify the default settings:
-   - **Framework Preset**: Vite
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-5. Click **Deploy**. Your portfolio will be live on Vercel's global edge network.
