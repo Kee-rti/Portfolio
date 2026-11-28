@@ -8,7 +8,6 @@ interface FeatureState {
   duration: number;      // seconds: 10 - 1200
   scrollDepth: number;   // percentage: 0 - 100% (matching content.js scroll percentage)
   keyCount: number;      // count: 0 - 150
-  switchCount: number;   // tab switches: 0 - 20 (tracked separately in extension worker)
 }
 
 export const ProdInteractiveDemo: React.FC = () => {
@@ -17,19 +16,18 @@ export const ProdInteractiveDemo: React.FC = () => {
     duration: 360,
     scrollDepth: 25,
     keyCount: 45,
-    switchCount: 2,
   });
 
   const loadPreset = (preset: 'deep-work' | 'social-media' | 'coding') => {
     switch (preset) {
       case 'deep-work':
-        setFeatures({ duration: 600, scrollDepth: 15, keyCount: 75, switchCount: 1 });
+        setFeatures({ duration: 600, scrollDepth: 15, keyCount: 75 });
         break;
       case 'social-media':
-        setFeatures({ duration: 60, scrollDepth: 85, keyCount: 4, switchCount: 12 });
+        setFeatures({ duration: 60, scrollDepth: 85, keyCount: 4 });
         break;
       case 'coding':
-        setFeatures({ duration: 320, scrollDepth: 35, keyCount: 50, switchCount: 3 });
+        setFeatures({ duration: 320, scrollDepth: 35, keyCount: 50 });
         break;
     }
   };
@@ -62,7 +60,7 @@ export const ProdInteractiveDemo: React.FC = () => {
     <section
       id="interactive-lab"
       ref={ref}
-      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+      className={`scroll-mt-24 py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
       }`}
     >
@@ -123,19 +121,20 @@ export const ProdInteractiveDemo: React.FC = () => {
             {/* Slider 1: Duration */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-mono">
-                <span className="text-ink">Active Session Duration</span>
+                <label htmlFor="prod-duration" className="text-ink">Active Session Duration</label>
                 <span className="text-rose font-medium">
                   {features.duration}s ({Math.round((features.duration / 60) * 10) / 10}m)
                 </span>
               </div>
               <input
+                id="prod-duration"
                 type="range"
                 min="10"
                 max="1200"
                 step="10"
                 value={features.duration}
                 onChange={(e) => setFeatures({ ...features, duration: Number(e.target.value) })}
-                className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
+                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-surface-muted accent-rose focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose focus-visible:ring-offset-4"
               />
               <span className="text-[11px] font-mono text-ink-faint block">
                 Continuous engagement time on the active tab (seconds).
@@ -145,10 +144,11 @@ export const ProdInteractiveDemo: React.FC = () => {
             {/* Slider 2: Scroll Depth (Percentage: 0 - 100%) */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-mono">
-                <span className="text-ink">Max Scroll Depth</span>
+                <label htmlFor="prod-scroll-depth" className="text-ink">Max Scroll Depth</label>
                 <span className="text-rose font-medium">{features.scrollDepth}% of page</span>
               </div>
               <input
+                id="prod-scroll-depth"
                 type="range"
                 min="0"
                 max="100"
@@ -165,10 +165,11 @@ export const ProdInteractiveDemo: React.FC = () => {
             {/* Slider 3: Keystrokes */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-mono">
-                <span className="text-ink">Keystroke Count</span>
+                <label htmlFor="prod-key-count" className="text-ink">Keystroke Count</label>
                 <span className="text-rose font-medium">{features.keyCount} keystrokes</span>
               </div>
               <input
+                id="prod-key-count"
                 type="range"
                 min="0"
                 max="150"
@@ -182,29 +183,12 @@ export const ProdInteractiveDemo: React.FC = () => {
               </span>
             </div>
 
-            {/* Slider 4: Tab Switching (Tracked separately notice) */}
-            <div className="space-y-1.5 pt-1 border-t border-border-subtle">
-              <div className="flex justify-between text-xs font-mono">
-                <span className="text-ink flex items-center gap-1.5">
-                  <span>Observed Tab Switches</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface-muted text-ink-muted border border-border-subtle">
-                    Telemetry Only · Excluded from Model
-                  </span>
-                </span>
-                <span className="text-ink-muted font-medium">{features.switchCount} switches</span>
+            <div className="space-y-2 rounded-2xl border border-border-subtle bg-surface-muted/50 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-sm font-medium text-ink">Tab-switch telemetry</span>
+                <Badge variant="muted" size="sm">Not used for prediction</Badge>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="20"
-                step="1"
-                value={features.switchCount}
-                onChange={(e) => setFeatures({ ...features, switchCount: Number(e.target.value) })}
-                className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
-              />
-              <span className="text-[11px] font-mono text-ink-faint block">
-                Illustrative telemetry only: the current XGBoost predictor receives 0 in its fourth feature position, so changing this count does not affect the classification.
-              </span>
+              <p className="text-xs leading-relaxed text-ink-muted">The extension records tab switches separately. The current XGBoost model receives a constant 0 for this feature, so it is excluded from these controls.</p>
             </div>
 
             <div className="pt-2 text-xs text-ink-muted font-sans border-t border-border-subtle flex items-center gap-2">
@@ -226,6 +210,8 @@ export const ProdInteractiveDemo: React.FC = () => {
 
               {/* Status Display Card */}
               <div
+                aria-live="polite"
+                aria-atomic="true"
                 className={`p-5 rounded-2xl border transition-colors ${
                   inferenceResult.label === 'FOCUSED'
                     ? 'bg-accent-greenSubtle/60 border-accent-green/30 text-accent-green'
