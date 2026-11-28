@@ -2,10 +2,19 @@ import React from 'react';
 import { experiences } from '../../data/experience';
 import { Badge } from '../common/Badge';
 import { FlowerDoodle, StarDoodle } from '../common/FloralAccents';
+import { useInView } from '../../hooks/useInView';
 
 export const ExperienceSection: React.FC = () => {
+  const { ref, isVisible } = useInView();
+
   return (
-    <section id="experience" className="py-14 sm:py-18 border-t border-border">
+    <section
+      id="experience"
+      ref={ref}
+      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="space-y-10 sm:space-y-12">
         
         {/* Section Header */}
@@ -31,7 +40,7 @@ export const ExperienceSection: React.FC = () => {
           {experiences.map((exp) => (
             <div
               key={exp.id}
-              className="bg-surface-elevated border border-border rounded-3xl p-6 sm:p-8 shadow-soft space-y-5"
+              className="group bg-surface-elevated border border-border rounded-3xl p-6 sm:p-8 shadow-soft hover:border-rose-border hover:-translate-y-0.5 hover:shadow-soft-hover transition-all duration-300 space-y-5"
             >
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border-subtle pb-4">

@@ -1,10 +1,19 @@
 import React from 'react';
 import { exploringData } from '../../data/exploring';
 import { FlowerDoodle, StarDoodle, SparkleDoodle } from '../common/FloralAccents';
+import { useInView } from '../../hooks/useInView';
 
 export const ExploringSection: React.FC = () => {
+  const { ref, isVisible } = useInView();
+
   return (
-    <section id="exploring" className="py-14 sm:py-18 border-t border-border">
+    <section
+      id="exploring"
+      ref={ref}
+      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="space-y-8 sm:space-y-10">
         
         {/* Section Header */}
@@ -27,10 +36,11 @@ export const ExploringSection: React.FC = () => {
 
         {/* 3 Editorial Focus Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 items-stretch">
-          {exploringData.areas.map((area) => (
+          {exploringData.areas.map((area, idx) => (
             <div
               key={area.id}
-              className="bg-surface-elevated border border-border rounded-3xl p-6 sm:p-7 shadow-soft space-y-3.5 hover:border-rose-border transition-colors flex flex-col justify-between"
+              style={{ transitionDelay: isVisible ? `${idx * 90}ms` : '0ms' }}
+              className="group bg-surface-elevated border border-border rounded-3xl p-6 sm:p-7 shadow-soft space-y-3.5 hover:border-rose-border hover:-translate-y-1 hover:shadow-soft-hover transition-all duration-300 flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-border-subtle pb-3">
@@ -43,9 +53,11 @@ export const ExploringSection: React.FC = () => {
                       {area.title}
                     </h3>
                   </div>
-                  {area.accent === 'rose' && <StarDoodle size={13} className="text-rose" />}
-                  {area.accent === 'lilac' && <SparkleDoodle size={13} className="text-lilac" />}
-                  {area.accent === 'plum' && <FlowerDoodle size={13} className="text-plum dark:text-rose" />}
+                  <span className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300">
+                    {area.accent === 'rose' && <StarDoodle size={14} className="text-rose" />}
+                    {area.accent === 'lilac' && <SparkleDoodle size={14} className="text-lilac" />}
+                    {area.accent === 'plum' && <FlowerDoodle size={14} className="text-plum dark:text-rose" />}
+                  </span>
                 </div>
 
                 <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-sans">
@@ -55,16 +67,16 @@ export const ExploringSection: React.FC = () => {
 
               <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-ink-faint">
                 <span>Direction {area.number}</span>
-                <span className="text-rose">✦</span>
+                <StarDoodle size={11} className="text-rose group-hover:rotate-45 transition-transform duration-300" />
               </div>
             </div>
           ))}
         </div>
 
         {/* Subtle Research Note Banner */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-surface-muted/60 border border-border-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface-muted/60 border border-border-subtle hover:border-rose-border transition-colors duration-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-rose font-mono font-medium">
-            <SparkleDoodle size={13} className="text-rose flex-shrink-0" />
+            <SparkleDoodle size={14} className="text-rose flex-shrink-0 animate-twinkle" />
             <span className="uppercase tracking-wider text-[11px]">{exploringData.researchNote.badge}:</span>
             <span className="text-ink font-sans font-normal text-xs sm:text-sm">
               {exploringData.researchNote.text}

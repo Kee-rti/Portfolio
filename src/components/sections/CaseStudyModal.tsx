@@ -29,12 +29,12 @@ export const CaseStudyModal: React.FC<CaseStudyModalProps> = ({ project, onClose
 
   return (
     <div 
-      className="fixed inset-0 z-50 overflow-y-auto bg-ink/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+      className="fixed inset-0 z-50 overflow-y-auto bg-ink/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in"
       onClick={onClose}
     >
       {/* Modal Container */}
       <div 
-        className="relative w-full max-w-3xl bg-surface-elevated border border-border rounded-3xl shadow-2xl overflow-hidden my-6 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-3xl bg-surface-elevated border border-border rounded-3xl shadow-2xl overflow-hidden my-6 max-h-[92vh] flex flex-col animate-modal-pop"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Bar */}

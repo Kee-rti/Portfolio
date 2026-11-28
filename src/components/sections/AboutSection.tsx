@@ -1,10 +1,19 @@
 import React from 'react';
 import { siteConfig } from '../../data/site';
 import { FlowerDoodle, StarDoodle, SparkleDoodle } from '../common/FloralAccents';
+import { useInView } from '../../hooks/useInView';
 
 export const AboutSection: React.FC = () => {
+  const { ref, isVisible } = useInView();
+
   return (
-    <section id="about" className="py-14 sm:py-18 border-t border-border">
+    <section
+      id="about"
+      ref={ref}
+      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="space-y-10 sm:space-y-12">
         
         {/* Section Header */}
@@ -49,12 +58,12 @@ export const AboutSection: React.FC = () => {
           </div>
 
           {/* Right: How I Approach Engineering (5 cols) */}
-          <div className="lg:col-span-5 bg-surface-elevated border border-border rounded-3xl p-6 sm:p-7 shadow-soft space-y-5">
+          <div className="group lg:col-span-5 bg-surface-elevated border border-border hover:border-rose-border rounded-3xl p-6 sm:p-7 shadow-soft hover:shadow-soft-hover transition-all duration-300 space-y-5">
             <div className="flex items-center justify-between border-b border-border-subtle pb-3">
               <span className="font-mono text-xs uppercase tracking-wider text-plum dark:text-rose font-semibold">
                 How I Approach Engineering
               </span>
-              <FlowerDoodle size={14} className="text-rose" />
+              <FlowerDoodle size={15} className="text-rose group-hover:rotate-45 transition-transform duration-500" />
             </div>
 
             <div className="space-y-3.5">

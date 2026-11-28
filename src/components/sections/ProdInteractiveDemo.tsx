@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Badge } from '../common/Badge';
 import { SparkleDoodle, StarDoodle } from '../common/FloralAccents';
 import { predictXGB } from '../../utils/xgbPredictor';
+import { useInView } from '../../hooks/useInView';
 
 interface FeatureState {
   duration: number;      // seconds: 10 - 1200
@@ -11,6 +12,7 @@ interface FeatureState {
 }
 
 export const ProdInteractiveDemo: React.FC = () => {
+  const { ref, isVisible } = useInView();
   const [features, setFeatures] = useState<FeatureState>({
     duration: 360,
     scrollDepth: 25,
@@ -57,7 +59,13 @@ export const ProdInteractiveDemo: React.FC = () => {
   }, [features]);
 
   return (
-    <section id="interactive-lab" className="py-14 sm:py-18 border-t border-border">
+    <section
+      id="interactive-lab"
+      ref={ref}
+      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="space-y-8">
         
         {/* Section Header */}

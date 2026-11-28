@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
           <span className="font-display italic text-2xl font-semibold tracking-tight">
             kirti
           </span>
-          <FlowerDoodle size={16} className="text-rose group-hover:rotate-45 transition-transform duration-300" />
+          <FlowerDoodle size={18} className="text-rose group-hover:rotate-90 transition-transform duration-500" />
         </a>
 
         {/* Desktop Navigation */}
@@ -45,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
             <a
               key={item.href}
               href={item.href}
-              className="text-ink-muted hover:text-ink transition-colors duration-150 relative py-1 hover:underline decoration-rose-border underline-offset-8"
+              className="text-ink-muted hover:text-ink transition-all duration-200 relative py-1 hover:-translate-y-px hover:underline decoration-rose-border underline-offset-8"
             >
               {item.label}
             </a>
@@ -58,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
             href={siteConfig.links.resume}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium border border-rose-border bg-rose-subtle text-rose-dark dark:text-rose hover:bg-rose-border/40 transition-colors duration-150"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium border border-rose-border bg-rose-subtle text-rose-dark dark:text-rose hover:bg-rose-border/40 hover:-translate-y-px transition-all duration-200"
           >
             <span>résumé.pdf</span>
             <span className="text-[10px]">↗</span>
@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="p-2 rounded-full border border-border bg-surface-elevated text-ink hover:border-rose transition-colors duration-150"
+            className="p-2 rounded-full border border-border bg-surface-elevated text-ink hover:border-rose hover:rotate-12 active:scale-95 transition-all duration-200"
           >
             {isDark ? (
               // Sun icon for dark mode

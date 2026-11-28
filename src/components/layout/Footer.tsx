@@ -12,9 +12,9 @@ export const Footer: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-5 text-center sm:text-left">
         
         {/* Left: Studio Mark & Note */}
-        <div className="flex flex-col sm:flex-row items-center gap-2">
+        <div className="group flex flex-col sm:flex-row items-center gap-2">
           <span className="font-display italic text-lg font-semibold text-ink">kirti</span>
-          <FlowerDoodle size={14} className="text-rose" />
+          <FlowerDoodle size={15} className="text-rose group-hover:rotate-90 transition-transform duration-500" />
           <span className="text-xs text-ink-muted">
             • Final-Year CS Student • New Delhi
           </span>
@@ -22,9 +22,9 @@ export const Footer: React.FC = () => {
 
         {/* Center: Playful Motif */}
         <div className="flex items-center gap-2 text-xs font-mono text-ink-faint">
-          <StarDoodle size={11} className="text-rose" />
+          <StarDoodle size={12} className="text-rose animate-twinkle" />
           <span>Built with React & Tailwind CSS</span>
-          <StarDoodle size={11} className="text-lilac" />
+          <StarDoodle size={12} className="text-lilac animate-twinkle" />
         </div>
 
         {/* Right: Quick Links & Back to Top */}

@@ -51,7 +51,20 @@ export default {
       },
       spacing: {
         '18': '4.5rem',
-      }
+      },
+      animation: {
+        'fade-in-up': 'fadeInUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'fade-in': 'fadeIn 0.5s ease-out both',
+        'scale-in': 'scaleIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'float-slow': 'floatSlow 4.5s ease-in-out infinite',
+        'float-gentle': 'floatGentle 5s ease-in-out infinite',
+        'twinkle': 'twinkle 3.2s ease-in-out infinite',
+        'spin-slow': 'spinSlow 12s linear infinite',
+        'modal-pop': 'modalPop 0.28s cubic-bezier(0.22, 1, 0.36, 1) both',
+      },
+      transitionDuration: {
+        '400': '400ms',
+      },
     },
   },
   plugins: [],

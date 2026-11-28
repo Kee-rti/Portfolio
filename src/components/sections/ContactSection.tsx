@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { siteConfig } from '../../data/site';
 import { FlowerDoodle, StarDoodle, SparkleDoodle } from '../common/FloralAccents';
+import { useInView } from '../../hooks/useInView';
 
 export const ContactSection: React.FC = () => {
   const [copied, setCopied] = useState(false);
+  const { ref, isVisible } = useInView();
 
   const copyEmail = () => {
     navigator.clipboard.writeText(siteConfig.email);
@@ -12,7 +14,13 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-14 sm:py-18 border-t border-border">
+    <section
+      id="contact"
+      ref={ref}
+      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="max-w-3xl mx-auto text-center space-y-8">
         
         {/* Header with flower doodle */}
@@ -33,7 +41,7 @@ export const ContactSection: React.FC = () => {
         </div>
 
         {/* Actionable Email Box */}
-        <div className="bg-surface-elevated border border-border rounded-3xl p-6 sm:p-8 shadow-soft max-w-lg mx-auto space-y-5">
+        <div className="bg-surface-elevated border border-border hover:border-rose-border rounded-3xl p-6 sm:p-8 shadow-soft hover:shadow-soft-hover transition-all duration-300 max-w-lg mx-auto space-y-5">
           <div className="space-y-1">
             <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
               Email Address

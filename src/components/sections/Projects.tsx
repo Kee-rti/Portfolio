@@ -3,12 +3,20 @@ import { projects, Project } from '../../data/projects';
 import { Badge } from '../common/Badge';
 import { FlowerDoodle, SparkleDoodle } from '../common/FloralAccents';
 import { CaseStudyModal } from './CaseStudyModal';
+import { useInView } from '../../hooks/useInView';
 
 export const ProjectsSection: React.FC = () => {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const { ref, isVisible } = useInView();
 
   return (
-    <section id="work" className="py-14 sm:py-18 border-t border-border">
+    <section
+      id="work"
+      ref={ref}
+      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="space-y-10 sm:space-y-12">
         
         {/* Section Header */}
@@ -34,7 +42,7 @@ export const ProjectsSection: React.FC = () => {
           {projects.map((project, index) => (
             <article
               key={project.id}
-              className="group bg-surface-elevated border border-border rounded-3xl p-6 sm:p-8 shadow-soft hover:border-rose-border transition-colors"
+              className="group bg-surface-elevated border border-border rounded-3xl p-6 sm:p-8 shadow-soft hover:border-rose-border hover:-translate-y-1 hover:shadow-soft-hover transition-all duration-300"
             >
               {/* Header: Name, Category, Status */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle pb-4 mb-5">
@@ -84,11 +92,11 @@ export const ProjectsSection: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-4 pt-3">
                   <button
                     onClick={() => setActiveProject(project)}
-                    className="px-5 py-2.5 rounded-full text-xs font-mono font-medium bg-plum dark:bg-rose text-surface hover:opacity-90 transition-all shadow-soft flex items-center gap-2"
+                    className="group/btn px-5 py-2.5 rounded-full text-xs font-mono font-medium bg-plum dark:bg-rose text-surface hover:opacity-95 hover:-translate-y-px active:scale-[0.98] transition-all duration-200 shadow-soft flex items-center gap-2"
                   >
-                    <SparkleDoodle size={11} className="text-surface" />
+                    <SparkleDoodle size={12} className="text-surface group-hover/btn:rotate-12 transition-transform duration-300" />
                     <span>View Case Study</span>
-                    <span>→</span>
+                    <span className="group-hover/btn:translate-x-0.5 transition-transform duration-200">→</span>
                   </button>
 
                   {project.links.github && (
