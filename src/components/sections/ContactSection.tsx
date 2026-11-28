@@ -4,20 +4,25 @@ import { FlowerDoodle, StarDoodle, SparkleDoodle } from '../common/FloralAccents
 import { useInView } from '../../hooks/useInView';
 
 export const ContactSection: React.FC = () => {
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "unavailable">("idle");
   const { ref, isVisible } = useInView();
 
-  const copyEmail = () => {
-    navigator.clipboard.writeText(siteConfig.email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+  const copyEmail = async () => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(siteConfig.email);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("unavailable");
+    }
+    window.setTimeout(() => setCopyStatus("idle"), 2500);
   };
 
   return (
     <section
       id="contact"
       ref={ref}
-      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+      className={`scroll-mt-24 py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
       }`}
     >
@@ -46,7 +51,7 @@ export const ContactSection: React.FC = () => {
             <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
               Email Address
             </span>
-            <div className="font-display text-xl sm:text-2xl text-ink font-medium select-all">
+            <div className="break-all font-display text-xl sm:text-2xl text-ink font-medium select-all">
               {siteConfig.email}
             </div>
           </div>
@@ -54,17 +59,19 @@ export const ContactSection: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
             <a
               href={`mailto:${siteConfig.email}`}
-              className="px-5 py-2.5 rounded-full text-xs font-mono font-medium bg-plum dark:bg-rose text-surface hover:opacity-90 transition-all shadow-soft flex items-center gap-1.5"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-plum px-5 py-2.5 text-xs font-mono font-medium text-surface shadow-soft transition-all hover:-translate-y-px hover:opacity-90 dark:bg-rose"
             >
               <span>Send an Email</span>
               <span>↗</span>
             </a>
 
             <button
+              type="button"
               onClick={copyEmail}
-              className="px-4 py-2.5 rounded-full text-xs font-mono border border-border hover:border-rose text-ink transition-colors bg-surface-muted/50 flex items-center gap-1.5"
+              aria-label="Copy email address"
+              className="inline-flex min-h-11 items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-mono border border-border hover:border-rose text-ink transition-colors bg-surface-muted/50 flex items-center gap-1.5"
             >
-              {copied ? (
+              {copyStatus === "copied" ? (
                 <>
                   <SparkleDoodle size={12} className="text-accent-green" />
                   <span className="text-accent-green">Copied!</span>
@@ -77,6 +84,7 @@ export const ContactSection: React.FC = () => {
               )}
             </button>
           </div>
+          <p aria-live="polite" className="min-h-4 text-xs text-ink-muted">{copyStatus === "copied" ? "Email address copied." : copyStatus === "unavailable" ? "Clipboard unavailable. Select the email address above to copy it." : ""}</p>
 
           {/* Social Links Row */}
           <div className="pt-5 border-t border-border-subtle flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-mono">

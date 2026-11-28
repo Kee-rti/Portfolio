@@ -15,9 +15,17 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') setMobileMenuOpen(false); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [mobileMenuOpen]);
 
   return (
     <header
@@ -30,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Logo / Studio Mark */}
         <a
-          href="#"
+          href="#main-content"
           className="group flex items-center gap-2 text-ink hover:text-rose transition-colors duration-200"
         >
           <span className="font-display italic text-2xl font-semibold tracking-tight">
@@ -40,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
+        <nav className="hidden lg:flex items-center gap-5 text-sm font-medium xl:gap-7">
           {siteConfig.navigation.map((item) => (
             <a
               key={item.href}
@@ -65,9 +73,11 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
           </a>
 
           <button
+            type="button"
             onClick={toggleTheme}
-            aria-label="Toggle theme"
-            className="p-2 rounded-full border border-border bg-surface-elevated text-ink hover:border-rose hover:rotate-12 active:scale-95 transition-all duration-200"
+            aria-pressed={isDark}
+            aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border bg-surface-elevated text-ink transition-all duration-200 hover:border-rose hover:text-rose active:scale-95"
           >
             {isDark ? (
               // Sun icon for dark mode
@@ -85,9 +95,12 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
 
           {/* Mobile Menu Button */}
           <button
+            type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle mobile menu"
-            className="md:hidden p-2 text-ink hover:text-rose transition-colors"
+            aria-controls="mobile-navigation"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border bg-surface-elevated text-ink transition-colors hover:border-rose hover:text-rose lg:hidden"
           >
             {mobileMenuOpen ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,14 +119,14 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-surface-elevated border-b border-border px-6 py-6 space-y-4 shadow-soft">
+        <div id="mobile-navigation" className="lg:hidden bg-surface-elevated border-t border-border px-5 py-4 shadow-soft sm:px-6">
           <nav className="flex flex-col gap-4 text-base font-medium">
             {siteConfig.navigation.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-ink-muted hover:text-ink transition-colors py-1 flex items-center justify-between"
+                className="flex min-h-11 items-center justify-between rounded-xl px-3 text-ink-muted transition-colors hover:bg-surface-muted hover:text-rose"
               >
                 <span>{item.label}</span>
                 <span className="text-xs text-rose">→</span>
