@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
           <span className="font-display italic text-lg font-semibold text-ink">kirti</span>
           <FlowerDoodle size={15} className="text-rose group-hover:rotate-90 transition-transform duration-500" />
           <span className="text-xs text-ink-muted">
-            • Final-Year CS Student • New Delhi
+            • Final-Year CS Student • {siteConfig.location}
           </span>
         </div>
 

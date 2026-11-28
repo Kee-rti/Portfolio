@@ -186,9 +186,9 @@ export const ProdInteractiveDemo: React.FC = () => {
             <div className="space-y-1.5 pt-1 border-t border-border-subtle">
               <div className="flex justify-between text-xs font-mono">
                 <span className="text-ink flex items-center gap-1.5">
-                  <span>Tab Switches</span>
+                  <span>Observed Tab Switches</span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface-muted text-ink-muted border border-border-subtle">
-                    Tracked Asynchronously
+                    Telemetry Only · Excluded from Model
                   </span>
                 </span>
                 <span className="text-ink-muted font-medium">{features.switchCount} switches</span>
@@ -203,7 +203,7 @@ export const ProdInteractiveDemo: React.FC = () => {
                 className="w-full h-2 bg-surface-muted rounded-lg appearance-none cursor-pointer accent-rose"
               />
               <span className="text-[11px] font-mono text-ink-faint block">
-                * Note: In the production extension, tab switching events are recorded separately in Chrome local storage; the active XGBoost decision tree path evaluates this input as 0.
+                Illustrative telemetry only: the current XGBoost predictor receives 0 in its fourth feature position, so changing this count does not affect the classification.
               </span>
             </div>
 

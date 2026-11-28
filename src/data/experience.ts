@@ -14,31 +14,31 @@ export interface ExperienceItem {
 export const experiences: ExperienceItem[] = [
   {
     id: 'naturetech',
-    role: 'AI Engineer (Intern)',
+    role: 'ML Engineer (Intern)',
     company: 'NatureTech SimpleInventions Pvt Ltd',
-    period: 'Dec 2025',
+    period: '6 months · 2025',
     type: 'Internship',
-    badge: 'ML Prototype & Documentation',
-    summary: 'Contributed to an exploratory machine learning prototype evaluating synthetic multi-sensor scenarios for anomaly detection, and authored supporting technical documentation.',
+    badge: 'ML Prototype & Technical Documentation',
+    summary: 'Focused on a software-only safety-monitoring ML prototype using synthetic multi-sensor scenarios, alongside supporting technical documentation.',
     highlights: [
-      'Built a multi-sensor safety-monitoring ML prototype in six weeks, using synthetic sensor scenarios to classify events such as falls and prolonged inactivity.',
-      'Implemented reproducible LSTM and multimodal sensor-fusion experiments in Streamlit; used SHAP and feature importance to interpret predictions.',
-      'Authored technical documentation for AI-driven products, supporting internal innovation filings.'
+      'Built a six-week software prototype exploring safety-event classification from simulated PIR, thermal, radar, environmental, audio and door-state signals.',
+      'Experimented with LSTM and multimodal sensor-fusion approaches in Streamlit, keeping the scope to synthetic-data research rather than hardware deployment.',
+      'Authored technical documentation for AI-driven products to support internal innovation filings.'
     ],
-    skills: ['Python', 'LSTM', 'Sensor Fusion', 'SHAP', 'Streamlit', 'MLOps', 'System Architecture', 'Git/GitHub']
+    skills: ['Python', 'LSTM', 'Multimodal Sensor Fusion', 'Synthetic Data', 'Streamlit', 'Git/GitHub']
   },
   {
     id: 'codingjr',
     role: 'AI Research Engineer (Intern)',
     company: 'Codingjr Pvt Ltd',
-    period: 'Apr 2025',
+    period: '2 months · 2025',
     type: 'Internship',
-    badge: 'Research & Pitch Development',
-    summary: 'Investigated developer workflow automation and AI copilot integrations, synthesizing market findings into technical outlines and pitch presentations.',
+    badge: 'AI Research & Product Discovery',
+    summary: 'Researched LLM copilots and AI-agent opportunities, translating business pain points into technical outlines and decision-ready material.',
     highlights: [
-      'Researched automation use cases and market opportunities for potential AI copilot integrations in developer workflows.',
-      'Collaborated with team members and leadership to turn research findings into a pitch deck outlining proposed AI solutions and their business value.'
+      'Researched potential copilot, LLM and agent workflows to identify practical automation opportunities and business use cases.',
+      'Synthesized findings into technical and non-technical documentation and contributed to a pitch deck outlining proposed AI solutions.'
     ],
-    skills: ['SQL', 'LLMs', 'RAG Concepts', 'Copilot Workflows', 'Market Research', 'Technical Presentation']
+    skills: ['LLMs', 'AI Agents', 'Copilot Workflows', 'Product Research', 'Technical Documentation', 'Technical Presentation']
   }
 ];
