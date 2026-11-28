@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Project } from '../../data/projects/types';
 import { Badge } from '../common/Badge';
 import { FlowerDoodle, StarDoodle } from '../common/FloralAccents';
@@ -9,17 +9,61 @@ interface CaseStudyModalProps {
 }
 
 export const CaseStudyModal: React.FC<CaseStudyModalProps> = ({ project, onClose }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    if (!project) return;
+
+    const previouslyFocused = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const previousBodyOverflow = document.body.style.overflow;
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const dialog = dialogRef.current;
+    const getFocusableElements = () =>
+      dialog
+        ? Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector))
+        : [];
+
+    (getFocusableElements()[0] ?? dialog)?.focus();
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (e.key !== 'Tab' || !dialog) return;
+
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) {
+        e.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+
+      if (!dialog.contains(document.activeElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
-    if (project) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = previousBodyOverflow;
       window.removeEventListener('keydown', handleKeyDown);
+      previouslyFocused?.focus();
     };
   }, [project, onClose]);
 
@@ -33,14 +77,19 @@ export const CaseStudyModal: React.FC<CaseStudyModalProps> = ({ project, onClose
       onClick={onClose}
     >
       {/* Modal Container */}
-      <div 
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="case-study-title"
+        tabIndex={-1}
         className="relative w-full max-w-3xl bg-surface-elevated border border-border rounded-3xl shadow-2xl overflow-hidden my-6 max-h-[92vh] flex flex-col animate-modal-pop"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Bar */}
         <div className="sticky top-0 z-10 bg-surface-elevated/95 backdrop-blur-md border-b border-border px-5 sm:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-display italic text-xl sm:text-2xl font-bold text-ink">
+            <span id="case-study-title" className="font-display italic text-xl sm:text-2xl font-bold text-ink">
               {project.title}
             </span>
             <Badge variant={project.accent} size="sm">{project.status}</Badge>
@@ -193,7 +242,7 @@ export const CaseStudyModal: React.FC<CaseStudyModalProps> = ({ project, onClose
 
         {/* Modal Footer */}
         <div className="sticky bottom-0 bg-surface-elevated/95 backdrop-blur-md border-t border-border px-5 sm:px-8 py-3 flex items-center justify-between text-xs font-mono">
-          <span className="text-ink-muted">Verified against source code</span>
+          <span className="text-ink-muted">Project notes & stated limitations</span>
           <button
             onClick={onClose}
             className="px-4 py-1.5 rounded-full border border-border hover:border-rose text-ink transition-colors"

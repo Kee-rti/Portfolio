@@ -109,7 +109,7 @@ export const Hero: React.FC = () => {
             <span className="text-ink-faint">•</span>
             <span>Lovely Professional University</span>
             <span className="text-ink-faint">•</span>
-            <span className="text-plum dark:text-rose">New Delhi, India</span>
+            <span className="text-plum dark:text-rose">{siteConfig.location}</span>
           </div>
 
         </div>
@@ -128,7 +128,7 @@ export const Hero: React.FC = () => {
               <div className="relative aspect-[4/5] w-full rounded-[1.4rem] overflow-hidden bg-surface-muted">
                 <img
                   src="/kirti.jpg"
-                  alt="Kirti — Computer Science Student & Aspiring AI/ML Engineer"
+                  alt="Kirti — Final-year CSE student focused on practical AI/ML engineering"
                   className="w-full h-full object-cover object-top filter contrast-[1.02] brightness-[1.01] group-hover:scale-[1.02] transition-transform duration-700 ease-out"
                   loading="eager"
                 />
@@ -146,7 +146,7 @@ export const Hero: React.FC = () => {
                     <span className="font-medium text-[11px] sm:text-xs">Applied AI & Software</span>
                   </div>
                   <span className="text-plum dark:text-rose text-[11px] font-mono flex items-center gap-1">
-                    <span>Delhi</span>
+                    <span>{siteConfig.location}</span>
                     <StarDoodle size={11} className="text-rose animate-twinkle" />
                   </span>
                 </div>
