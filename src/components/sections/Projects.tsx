@@ -13,7 +13,7 @@ export const ProjectsSection: React.FC = () => {
     <section
       id="work"
       ref={ref}
-      className={`py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
+      className={`scroll-mt-24 py-14 sm:py-18 border-t border-border transition-all duration-700 ease-out ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
       }`}
     >
@@ -22,7 +22,7 @@ export const ProjectsSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 sm:max-w-[48%] sm:justify-end">
               <span className="font-mono text-xs uppercase tracking-wider text-rose font-medium">
                 Projects
               </span>
@@ -42,13 +42,13 @@ export const ProjectsSection: React.FC = () => {
           {projects.map((project, index) => (
             <article
               key={project.id}
-              className="group bg-surface-elevated border border-border rounded-3xl p-6 sm:p-8 shadow-soft hover:border-rose-border hover:-translate-y-1 hover:shadow-soft-hover transition-all duration-300"
+              className="group rounded-3xl border border-border bg-surface-elevated p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-rose-border hover:shadow-soft-hover sm:p-7 lg:p-8"
             >
               {/* Header: Name, Category, Status */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle pb-4 mb-5">
-                <div className="flex items-center gap-3">
+              <div className="mb-5 flex flex-col gap-3 border-b border-border-subtle pb-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex min-w-0 items-start gap-3">
                   <span className="font-mono text-xs text-rose font-semibold">0{index + 1}</span>
-                  <h3 className="font-display text-2xl font-normal text-ink group-hover:text-rose transition-colors">
+                  <h3 className="min-w-0 break-words font-display text-2xl font-normal tracking-tight text-ink transition-colors group-hover:text-rose">
                     {project.title}
                   </h3>
                 </div>
@@ -57,9 +57,7 @@ export const ProjectsSection: React.FC = () => {
                   <Badge variant={project.accent} size="sm">
                     {project.category}
                   </Badge>
-                  <span className="text-xs font-mono text-ink-muted px-2.5 py-0.5 rounded-full bg-surface-muted border border-border-subtle">
-                    {project.status}
-                  </span>
+                  <Badge variant="muted" size="sm">{project.status}</Badge>
                 </div>
               </div>
 
@@ -78,9 +76,9 @@ export const ProjectsSection: React.FC = () => {
 
                 {/* 3-5 Technologies */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {project.technologies.map((tech, tIdx) => (
+                  {project.technologies.map((tech) => (
                     <span
-                      key={tIdx}
+                      key={tech}
                       className="px-2.5 py-0.5 rounded-full text-xs font-mono bg-surface-muted text-ink-muted border border-border-subtle"
                     >
                       {tech}
@@ -89,10 +87,12 @@ export const ProjectsSection: React.FC = () => {
                 </div>
 
                 {/* Actions: Case study & links */}
-                <div className="flex flex-wrap items-center gap-4 pt-3">
+                <div className="flex flex-wrap items-center gap-2.5 pt-3">
                   <button
+                    type="button"
                     onClick={() => setActiveProject(project)}
-                    className="group/btn px-5 py-2.5 rounded-full text-xs font-mono font-medium bg-plum dark:bg-rose text-surface hover:opacity-95 hover:-translate-y-px active:scale-[0.98] transition-all duration-200 shadow-soft flex items-center gap-2"
+                    aria-haspopup="dialog"
+                    className="group/btn inline-flex min-h-11 items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-medium bg-plum dark:bg-rose text-surface hover:opacity-95 hover:-translate-y-px active:scale-[0.98] transition-all duration-200 shadow-soft flex items-center gap-2"
                   >
                     <SparkleDoodle size={12} className="text-surface group-hover/btn:rotate-12 transition-transform duration-300" />
                     <span>View Case Study</span>
